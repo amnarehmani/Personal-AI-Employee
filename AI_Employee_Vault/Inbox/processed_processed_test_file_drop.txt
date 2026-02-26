@@ -1,0 +1,21 @@
+Test File for AI Employee
+==========================
+
+This is a test file to verify the FileSystem Watcher is working correctly.
+
+When this file is placed in the Inbox folder, the watcher should:
+1. Detect the new file
+2. Create an action file in /Needs_Action
+3. Copy the original file to the vault
+
+Test timestamp: 2026-02-26
+
+## Test Data
+
+- **Client Name:** Test Client
+- **Invoice Amount:** $500
+- **Due Date:** 2026-03-15
+
+## Action Required
+
+Please process this test file and move it to /Done when complete.

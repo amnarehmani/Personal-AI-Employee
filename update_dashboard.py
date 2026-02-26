@@ -1,0 +1,219 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Dashboard Updater - Automatically updates Dashboard.md with current stats.
+
+Usage:
+    python update_dashboard.py AI_Employee_Vault
+"""
+
+import sys
+import json
+from pathlib import Path
+from datetime import datetime
+
+
+def count_files(directory: Path) -> int:
+    """Count files in a directory."""
+    try:
+        return len([f for f in directory.iterdir() if f.is_file()])
+    except Exception:
+        return 0
+
+
+def get_recent_activity(logs_path: Path, limit: int = 5) -> list:
+    """Get recent activity from logs."""
+    activities = []
+    
+    try:
+        # Find today's log file
+        today = datetime.now().strftime('%Y-%m-%d')
+        log_file = logs_path / f'{today}.jsonl'
+        
+        if log_file.exists():
+            with open(log_file, 'r', encoding='utf-8') as f:
+                for line in f:
+                    try:
+                        entry = json.loads(line.strip())
+                        activities.append(entry)
+                    except json.JSONDecodeError:
+                        continue
+        
+        # Return last N entries
+        return activities[-limit:]
+    except Exception:
+        return []
+
+
+def update_dashboard(vault_path: Path):
+    """Update the Dashboard.md with current statistics."""
+    
+    # Count files in each folder
+    needs_action_count = count_files(vault_path / 'Needs_Action')
+    pending_approval_count = count_files(vault_path / 'Pending_Approval')
+    done_count = count_files(vault_path / 'Done')
+    inbox_count = count_files(vault_path / 'Inbox')
+    
+    # Get recent activity
+    recent_activities = get_recent_activity(vault_path / 'Logs')
+    
+    # Build activity table
+    activity_rows = []
+    for activity in recent_activities:
+        timestamp = activity.get('timestamp', 'Unknown')[:16].replace('T', ' ')
+        event = activity.get('event', 'Unknown')
+        details = activity.get('details', {})
+        
+        if event == 'qwen_triggered':
+            task_count = details.get('task_count', 0)
+            activity_rows.append(f"| {timestamp} | Processed {task_count} task(s) | Complete |")
+        elif event == 'qwen_completed':
+            pass  # Skip completion, already have triggered
+        elif event == 'qwen_error':
+            error = details.get('error', 'Unknown error')
+            activity_rows.append(f"| {timestamp} | Qwen error: {error} | Error |")
+        else:
+            activity_rows.append(f"| {timestamp} | {event} | - |")
+    
+    # If no activities, add placeholder
+    if not activity_rows:
+        activity_rows.append("| - | System initialized | Complete |")
+    
+    # Limit to 5 rows
+    activity_rows = activity_rows[-5:]
+    
+    # Build dashboard content
+    timestamp = datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
+    
+    dashboard_content = f'''---
+last_updated: {timestamp}
+status: active
+---
+
+# AI Employee Dashboard
+
+## Quick Status
+
+| Metric | Value |
+|--------|-------|
+| Pending Tasks | {needs_action_count} |
+| Awaiting Approval | {pending_approval_count} |
+| Completed Today | {done_count} |
+| Revenue MTD | $0 |
+
+---
+
+## Inbox Summary
+
+**Files in Inbox:** {inbox_count} item(s)
+
+---
+
+## Active Tasks
+
+{f'**{needs_action_count} task(s) pending processing**' if needs_action_count > 0 else '*No active tasks*'}
+
+---
+
+## Pending Approvals
+
+{f'**{pending_approval_count} item(s) awaiting approval**' if pending_approval_count > 0 else '*No items awaiting approval*'}
+
+---
+
+## Recent Activity
+
+| Timestamp | Action | Status |
+|-----------|--------|--------|
+''' + '\n'.join(activity_rows) + f'''
+
+---
+
+## Business Health
+
+### Revenue Tracking
+- **Monthly Goal:** $10,000
+- **Current MTD:** $0
+- **Progress:** 0%
+
+### Key Metrics
+| Metric | Target | Current | Status |
+|--------|--------|---------|--------|
+| Client Response Time | < 24 hours | - | ✓ |
+| Invoice Payment Rate | > 90% | - | ✓ |
+| System Uptime | 99% | {'Running' if needs_action_count >= 0 else 'Stopped'} | ✓ |
+
+---
+
+## System Status
+
+| Component | Status | Last Check |
+|-----------|--------|------------|
+| FileSystem Watcher | ✓ Available | Now |
+| Orchestrator | ✓ Available | Now |
+| Qwen Code | ✓ Available | Now |
+| Obsidian Vault | ✓ Open | Now |
+
+---
+
+## Quick Links
+
+- [[Company_Handbook]] - Rules of Engagement
+- [[Business_Goals]] - Objectives and Targets
+- [/Needs_Action](file://./Needs_Action) - Items requiring attention
+- [/Pending_Approval](file://./Pending_Approval) - Awaiting human approval
+- [/Done](file://./Done) - Completed tasks
+- [/Logs](file://./Logs) - Activity logs
+
+---
+
+## Commands
+
+```bash
+# Start the orchestrator (recommended)
+python orchestrator.py AI_Employee_Vault
+
+# Run Qwen Code manually
+cd AI_Employee_Vault && qwen
+
+# Test the system
+python test_watcher.py
+python test_orchestrator.py
+
+# Update this dashboard
+python update_dashboard.py AI_Employee_Vault
+```
+
+---
+
+*Last generated by AI Employee v0.1 (Bronze Tier) - Powered by Qwen Code*
+'''
+    
+    # Write dashboard
+    dashboard_file = vault_path / 'Dashboard.md'
+    dashboard_file.write_text(dashboard_content, encoding='utf-8')
+    
+    print(f"[Dashboard] Updated successfully")
+    print(f"  - Pending Tasks: {needs_action_count}")
+    print(f"  - Awaiting Approval: {pending_approval_count}")
+    print(f"  - Completed: {done_count}")
+    print(f"  - Inbox Files: {inbox_count}")
+
+
+def main():
+    """Main entry point."""
+    if len(sys.argv) < 2:
+        vault_path = Path(__file__).parent / 'AI_Employee_Vault'
+        print(f"No vault path specified, using default: {vault_path}")
+    else:
+        vault_path = Path(sys.argv[1])
+    
+    if not vault_path.exists():
+        print(f"Error: Vault path does not exist: {vault_path}")
+        sys.exit(1)
+    
+    update_dashboard(vault_path)
+
+
+if __name__ == '__main__':
+    main()

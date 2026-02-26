@@ -1,0 +1,12 @@
+{"timestamp": "2026-02-26T19:44:57.745098", "event": "qwen_triggered", "details": {"task_count": 5, "tasks": ["FILE_DROP_processed_processed_test_file_drop_txt_20260226_193226.md", "FILE_DROP_processed_processed_test_watcher_txt_20260226_193226.md", "FILE_DROP_processed_test_file_drop_txt_20260226_192816.md", "FILE_DROP_processed_test_watcher_txt_20260226_192816.md", "FILE_DROP_testfile_md_20260226_193356.md"]}}
+{"timestamp": "2026-02-26T19:47:57.764118", "event": "qwen_triggered", "details": {"task_count": 1, "tasks": ["FILE_DROP_text_md_20260226_194727.md"]}}
+{"timestamp": "2026-02-26T19:48:58.170405", "event": "qwen_triggered", "details": {"task_count": 1, "tasks": ["FILE_DROP_text_md_20260226_194727.md"]}}
+{"timestamp": "2026-02-26T19:50:39.807133", "event": "qwen_triggered", "details": {"task_count": 1, "tasks": ["FILE_DROP_text_md_20260226_194727.md"]}}
+{"timestamp": "2026-02-26T19:53:17.732020", "event": "qwen_triggered", "details": {"task_count": 1, "tasks": ["FILE_DROP_text_md_20260226_194727.md"]}}
+{"timestamp": "2026-02-26T19:53:17.732892", "event": "qwen_error", "details": {"error": "Command not found", "command": "qwen"}}
+{"timestamp": "2026-02-26T19:54:05.772416", "event": "test_event", "details": {"test": "data", "count": 1}}
+{"timestamp": "2026-02-26T20:01:52.537174", "event": "qwen_triggered", "details": {"task_count": 1, "tasks": ["FILE_DROP_text_md_20260226_194727.md"]}}
+{"timestamp": "2026-02-26T20:01:52.541410", "event": "qwen_error", "details": {"error": "Command not found", "command": "qwen"}}
+{"timestamp": "2026-02-26T20:08:28.431419", "event": "test_event", "details": {"test": "data", "count": 1}}
+{"timestamp": "2026-02-26T20:17:46.798019", "event": "qwen_triggered", "details": {"task_count": 1, "tasks": ["FILE_DROP_text_md_20260226_194727.md"]}}
+{"timestamp": "2026-02-26T20:19:31.366065", "event": "qwen_completed", "details": {"task_count": 1, "output_length": 2749}}
